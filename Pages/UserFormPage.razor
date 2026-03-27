@@ -1,0 +1,57 @@
+﻿@page "/user-form"
+@using Task2_Reusable_Form.Model
+@inject ILogger<UserFormPage> Logger
+
+<PageTitle>User Form Demo</PageTitle>
+
+<h1>User Information Form</h1>
+
+<UserForm Model="userModel" OnSubmit="HandleFormSubmit" SubmitButtonText="Save User"/>
+
+@if (submittedUser is not null)
+{
+    <div class="mt-4 alert alert-success">
+        <h4>Submitted Successfully!</h4>
+        <ul>
+            <li><strong>Name:</strong> @submittedUser.Name</li>
+            <li><strong>Address:</strong> @submittedUser.Address</li>
+            <li><strong>Age:</strong> @submittedUser.Age</li>
+            <li><strong>Email:</strong> @submittedUser.Email</li>
+        </ul>
+    </div>
+}
+
+
+
+@code {
+    private User userModel = new();
+    private User? submittedUser;
+    private EditContext editContext;
+    private ValidationMessageStore messageStore;
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(userModel);
+        messageStore = new ValidationMessageStore(editContext);
+
+        // Optional: only validate on submit
+        editContext.OnFieldChanged += (sender, e) =>
+        {
+            // Remove this if you don't want field-level validation
+        };
+    }
+    private async Task HandleFormSubmit(User submitted)
+    {
+        // All business logic remains here in the parent
+        Logger.LogInformation("User submitted: {Name} ({Email})", submitted.Name, submitted.Email);
+
+        submittedUser = submitted; // For demo display
+
+        // Simulate processing delay
+        await Task.Delay(800);
+
+        // Optional: Reset form for new entry
+        messageStore = new ValidationMessageStore(editContext);
+        userModel = new User();
+        StateHasChanged();
+    }
+}
